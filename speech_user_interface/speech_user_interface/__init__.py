@@ -28,7 +28,7 @@ def main():
                     'compare_strings(speech_text, "exit the program"):',
                     compare_strings(speech_text, "exit the program"),
                 )
-                if compare_strings(speech_text, "exit the program") > 0.6:
+                if compare_strings(speech_text, "exit the program") > 0.5:
                     break
 
                 print("speech_text:", speech_text)
