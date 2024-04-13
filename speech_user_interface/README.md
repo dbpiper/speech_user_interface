@@ -1,6 +1,18 @@
-# souce_code_to_pdf
+# speech_user_interface
 
-To run source_code_to_pdf from source you must have Poetry installed.
+You need to define a function to run like this:
 
-Then you can install it by running `poetry lock && poetry install`
-To run it you then run `poetry run souce_code_to_pdf`
+```
+def default_function_to_run(input_text: str):
+    reponse_text = send_text_to_chatgpt(input_text)
+    speak_text(reponse_text)
+
+
+main(function_to_run=default_function_to_run):
+
+```
+
+This one is configured by default but it can be anything. We run in a cycle
+until "exit the program" is said and that exits the infinite loop. We just keep
+reading input and passing that to the `function_to_run` this can do anything
+with this input.

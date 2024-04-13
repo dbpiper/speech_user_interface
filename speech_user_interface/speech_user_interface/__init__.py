@@ -12,7 +12,16 @@ __name__ == "__main__"
 __all__ = []
 
 
-def main():
+# expose a function to run when the app is
+
+
+def default_function_to_run(input_text: str):
+    reponse_text = send_text_to_chatgpt(input_text)
+    speak_text(reponse_text)
+
+
+def main(function_to_run=default_function_to_run):
+    function_to_run
     load_dotenv()
     vosk_model = load_vosk_model()
     # read in speech from the user as a sound file
@@ -32,8 +41,8 @@ def main():
                     break
 
                 print("speech_text:", speech_text)
-                reponse_text = send_text_to_chatgpt(speech_text)
-                speak_text(reponse_text)
+
+                function_to_run(speech_text)
 
     # use the text to talk to ChatGPT
     # take ChatGPT's response and convert that to speech
