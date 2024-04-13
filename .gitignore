@@ -1,6 +1,7 @@
 # Models
 models/
 *.mp3
+speech-user-interface-7570fcd5c166.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
