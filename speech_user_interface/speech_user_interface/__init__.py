@@ -17,6 +17,9 @@ def main():
     vosk_model = load_vosk_model()
     # read in speech from the user as a sound file
     # process that speech and convert it to text
+
+    # Inform user to start speaking
+    speak_text("The program is ready for you to begin speaking...")
     if vosk_model:
         while True:
             speech_text = read_in_speech(vosk_model)

@@ -29,9 +29,6 @@ def read_in_speech(vosk_model: Model, threshold=500, silence_duration=3):
     # Create a recognizer with the model
     recognizer = KaldiRecognizer(vosk_model, 16000)
 
-    # Inform user to start speaking
-    speak_text("Please start speaking...")
-
     while True:
         data = stream.read(8192, exception_on_overflow=False)
         if recognizer.AcceptWaveform(data):
