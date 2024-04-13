@@ -15,6 +15,6 @@ def send_text_to_chatgpt(text: str):
                 "content": text,
             }
         ],
-        model="gpt-3.5-turbo",
+        model="gpt-4-turbo-preview",
     )
     return response.choices[0].message.content

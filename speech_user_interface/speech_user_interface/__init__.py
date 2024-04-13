@@ -20,10 +20,14 @@ def main():
     if vosk_model:
         while True:
             speech_text = read_in_speech(vosk_model)
-            if compare_strings(speech_text, "exit the program") > 0.9:
-                break
-
             if isinstance(speech_text, str):
+                print(
+                    'compare_strings(speech_text, "exit the program"):',
+                    compare_strings(speech_text, "exit the program"),
+                )
+                if compare_strings(speech_text, "exit the program") > 0.6:
+                    break
+
                 print("speech_text:", speech_text)
                 reponse_text = send_text_to_chatgpt(speech_text)
                 speak_text(reponse_text)
