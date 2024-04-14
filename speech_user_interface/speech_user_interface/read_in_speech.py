@@ -5,6 +5,10 @@ from google.cloud import speech_v1 as speech
 
 def read_in_speech() -> str:
     client = speech.SpeechClient()
+    audio_buffer = []
+    silent_frames = 0
+    threshold = 500  # Silence threshold
+    silence_limit = 15  # Lower number of silent frames required to consider it the end of a speech
 
     # Initialize PyAudio
     p = pyaudio.PyAudio()
@@ -27,11 +31,6 @@ def read_in_speech() -> str:
     streaming_config = speech.StreamingRecognitionConfig(
         config=audio_config, interim_results=True
     )
-
-    audio_buffer = []
-    silent_frames = 0
-    threshold = 500  # Silence threshold
-    silence_limit = 10  # Lower number of silent frames required to consider it the end of a speech
 
     try:
         while True:

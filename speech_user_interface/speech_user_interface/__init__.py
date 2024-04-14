@@ -1,11 +1,15 @@
 from dotenv import load_dotenv
 from typing import Callable, NoReturn
+from openai import OpenAI
+import os
+import copy
 
 from .read_in_speech import read_in_speech
 from .send_text_to_chatgpt import send_text_to_chatgpt
 from .speak_text import speak_text
 from .compare_strings import compare_strings
 from .CommandResults import CommandResults
+from .CommandArgs import CommandArgs
 from .build_probabilities_for_speech import build_probabilities_for_speech
 
 
@@ -18,14 +22,16 @@ __all__ = [
 ]
 
 
-def run_function_on_chatgpt(input_text: str) -> CommandResults:
-    reponse_text = send_text_to_chatgpt(input_text)
+def run_function_on_chatgpt(args: CommandArgs) -> CommandResults:
+    newArgs = copy.deepcopy(args)
+    newArgs.client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+    reponse_text = send_text_to_chatgpt(newArgs)
     speak_text(reponse_text)
 
     return CommandResults(False)
 
 
-def exit_program(input_text: str) -> CommandResults:
+def exit_program(args: CommandArgs) -> CommandResults:
     exit()
 
     return CommandResults(true)
@@ -34,14 +40,16 @@ def exit_program(input_text: str) -> CommandResults:
 greeting = "The program is ready for you to begin speaking..."
 # we make a mapping from commands to functions and run the function
 # if we fuzzy detect a match to the command as the input
-run_function_on_command: dict[str, Callable[[str], CommandResults]] = {
+run_function_on_command: dict[str, Callable[[CommandArgs], CommandResults]] = {
     "chat GPT": run_function_on_chatgpt,
+    "chat g p t": run_function_on_chatgpt,
     "exit the program": exit_program,
+    "exit program": exit_program,
 }
 
 
 def set_extra_commands(
-    extra_commands: dict[str, Callable[[str], CommandResults]]
+    extra_commands: dict[str, Callable[[CommandArgs], CommandResults]]
 ):
     global run_function_on_command
     for extra_command, command_func in extra_commands.items():
@@ -67,7 +75,7 @@ def speech_user_interface(
     # Inform user to start speaking
     speak_text(greeting)
     command_results: tuple[
-        CommandResults, Callable[[str], CommandResults] | None
+        CommandResults, Callable[[CommandArgs], CommandResults] | None
     ] = (CommandResults(True), None)
     while True:
         already_ran_command = False
@@ -80,8 +88,11 @@ def speech_user_interface(
             command_func,
             command_prob,
         ) in command_speech_probabilities.items():
-            if command_prob > 0.9:
-                command_results = (command_func(speech_text), command_func)
+            if command_prob > 0.8:
+                command_results = (
+                    command_func(CommandArgs(speech_text)),
+                    command_func,
+                )
                 already_ran_command = True
                 break
 
@@ -91,7 +102,7 @@ def speech_user_interface(
             and not command_results[0].exit_on_done
         ):
             command_results = (
-                command_results[1](speech_text),
+                command_results[1](CommandArgs(speech_text)),
                 command_results[1],
             )
 
