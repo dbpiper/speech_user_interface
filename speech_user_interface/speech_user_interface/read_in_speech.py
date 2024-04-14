@@ -3,7 +3,7 @@ import numpy as np
 from google.cloud import speech_v1 as speech
 
 
-def read_in_speech() -> str | None:
+def read_in_speech() -> str:
     client = speech.SpeechClient()
 
     # Initialize PyAudio
@@ -71,7 +71,7 @@ def read_in_speech() -> str | None:
         stream.close()
         p.terminate()
 
-    return None
+    return ""
 
 
 def is_silence(data, threshold):

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "speech_user_interface"
-version = "0.1.14"
+version = "0.1.15"
 description = "A universal speech user interface for wrapping applications to provide them with a user interface that uses speech rather than text commands or traditional user interfaces"
 authors = ["David Piper <dbpiper@gmail.com>"]
 readme = "README.md"

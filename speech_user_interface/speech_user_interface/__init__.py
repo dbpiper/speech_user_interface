@@ -1,11 +1,12 @@
 from dotenv import load_dotenv
-from typing import Callable, cast
-from dataclasses import dataclass
+from typing import Callable, NoReturn
 
 from .read_in_speech import read_in_speech
 from .send_text_to_chatgpt import send_text_to_chatgpt
 from .speak_text import speak_text
 from .compare_strings import compare_strings
+from .CommandResults import CommandResults
+from .build_probabilities_for_speech import build_probabilities_for_speech
 
 
 __name__ == "__main__"
@@ -15,13 +16,6 @@ __all__ = [
     "send_text_to_chatgpt",
     "speak_text",
 ]
-
-
-@dataclass
-class CommandResults:
-    """Class for keeping track of a command's args."""
-
-    exit_on_done: bool
 
 
 def run_function_on_chatgpt(input_text: str) -> CommandResults:
@@ -65,33 +59,41 @@ def set_greeting(new_greeting: str):
 
 def speech_user_interface(
     prep_function=default_prep_function,
-):
+) -> NoReturn:
     prep_function()
     # read in speech from the user as a sound file
     # process that speech and convert it to text
 
     # Inform user to start speaking
     speak_text(greeting)
+    command_results: tuple[
+        CommandResults, Callable[[str], CommandResults] | None
+    ] = (CommandResults(True), None)
     while True:
+        already_ran_command = False
         speech_text = read_in_speech()
         print("read in speech_text:", speech_text)
-        command_results = CommandResults(True)
+        command_speech_probabilities = build_probabilities_for_speech(
+            speech_text, run_function_on_command
+        )
+        for _, (
+            command_func,
+            command_prob,
+        ) in command_speech_probabilities.items():
+            if command_prob > 0.9:
+                command_results = (command_func(speech_text), command_func)
+                already_ran_command = True
+                break
 
-        for command, command_func in run_function_on_command.items():
-            while not command_results.exit_on_done:
-                if isinstance(speech_text, str):
-                    print(
-                        f"""compare_strings(speech_text, command):
-                        {compare_strings(speech_text, command)}
-                        speech_text:{speech_text}
-                        command:{command}
-                        """,
-                        compare_strings(speech_text, command),
-                    )
-                    if compare_strings(speech_text, command) > 0.9:
-                        speech_text = read_in_speech()
-                        if isinstance(speech_text, str):
-                            command_results = command_func(speech_text)
+        if (
+            not already_ran_command
+            and command_results[1]
+            and not command_results[0].exit_on_done
+        ):
+            command_results = (
+                command_results[1](speech_text),
+                command_results[1],
+            )
 
     # use the text to talk to ChatGPT
     # take ChatGPT's response and convert that to speech
